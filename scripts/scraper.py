@@ -18,7 +18,7 @@ class WikipediaScraper():
         self.leader_ep = "/leader"
         self.cookies = (requests.get(f"{self.root_url}{self.cookie_ep}")).cookies
 
-        self.leaders_data = {}
+        self.leaders_data = []
 
     def refresh_cookie(self):
         """Method to refresh the cookies
@@ -41,18 +41,17 @@ class WikipediaScraper():
             return country_req.json()
         else:
             self.refresh_cookie()
-            print(country_req.status_code)
+            print(f"Status code: {country_req.status_code}\nUnknown error during requesting countries.")
             
     def get_leaders(self, country):
         leaders_req = requests.get(f"{self.root_url}{self.leaders_ep}", cookies=self.cookies, params= {"country":country})
         if leaders_req.status_code == 200:
-            self.leaders_data = leaders_req.json()
-            return self.leaders_data
+            self.leaders_data = [*self.leaders_data, *leaders_req.json()]
         elif leaders_req.status_code == 403:
-            print(leaders_req.status_code)
+            print(f"Status code: {leaders_req.status_code}\nRefreshing cookie...")
             self.refresh_cookie()
         else:
-            print(leaders_req.status_code )     
+            print(f"Status code: {leaders_req.status_code}\nUnknown error on requesting leader of =={country}==")
     
     def get_first_paragraph(self, wikipedia_url):
         req = requests.get(wikipedia_url)
@@ -69,21 +68,17 @@ class WikipediaScraper():
         leaders_with_paragraphs = {}
         for leader_info in self.leaders_data:
             leader_id = leader_info.get("id")
-            leader = {}
-            leader["First Name"] = leader_info.get("first_name")
-            leader["Last Name"] = leader_info.get("last_name")
-            leader["Birth Date"] = leader_info.get("birth_date")
-            leader["Death Date"] = leader_info.get("death_date")
-            leader["Wikipedia URL"] = leader_info.get("wikipedia_url")
+            leader = {"First Name": leader_info.get("first_name"), "Last Name": leader_info.get("last_name"),
+                      "Birth Date": leader_info.get("birth_date"), "Death Date": leader_info.get("death_date"),
+                      "Wikipedia URL": leader_info.get("wikipedia_url")}
             wikipedia_url = leader_info.get("wikipedia_url")
-            wikipedia_url
             leader["First Paragraph"] = self.get_first_paragraph(wikipedia_url)
             print(leader)
             leaders_with_paragraphs[leader_id] = leader
             print(leaders_with_paragraphs)
             
         with open(filepath, "w") as output_file:
-            json.dump(leaders_with_paragraphs, output_file)
+            json.dump(leaders_with_paragraphs, output_file, indent=4)
 
 
 
