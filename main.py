@@ -20,14 +20,7 @@ def main():
         scraper.get_leaders(country)
 
     scraper.to_json_file("./leaders_data.json")
-    # print(scraper.leaders_data)
-    # for dict in scraper.leaders_data:
-    # url = dict.get("wikipedia_url")
-    # scraper.get_first_paragraph(url)
-
-
-# print(scraper.leaders_data)
-# scraper.to_json_file("./leaders_data.json")
+    
 
 
 if __name__ == "__main__":
