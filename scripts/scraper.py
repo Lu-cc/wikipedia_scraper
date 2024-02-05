@@ -44,6 +44,11 @@ class WikipediaScraper():
             print(f"Status code: {country_req.status_code}\nUnknown error during requesting countries.")
             
     def get_leaders(self, country):
+        """Method to list all the leaders and their data into a dictionary.
+
+        Args:
+            country ('string'): The abbreviation of the country. 
+        """
         leaders_req = requests.get(f"{self.root_url}{self.leaders_ep}", cookies=self.cookies, params= {"country":country})
         if leaders_req.status_code == 200:
             self.leaders_data = [*self.leaders_data, *leaders_req.json()]
@@ -54,6 +59,14 @@ class WikipediaScraper():
             print(f"Status code: {leaders_req.status_code}\nUnknown error on requesting leader of =={country}==")
     
     def get_first_paragraph(self, wikipedia_url):
+        """Extract and print the first paragraph of each leader
+
+        Args:
+            wikipedia_url ('string'): The url for the leader's Wikipedia page
+
+        Returns:
+            first parargraph("srting"): The first paragraph of the leader's wikipedia page
+        """
         req = requests.get(wikipedia_url)
         soup = BeautifulSoup(req.content, "html.parser")
         paragraphs = soup.find_all('p')
